@@ -1,0 +1,4 @@
+CREATE x SET 15 + 2 - 8;
+LOG x;
+LOG x - 22.5;
+LOG GET ELEMENTS BY CLASS NAME "js-httpswwwyoutubecomsdesktop18069be1jsbinwebanimationsnextliteminvflsetwebanimationsnextliteminjs";
