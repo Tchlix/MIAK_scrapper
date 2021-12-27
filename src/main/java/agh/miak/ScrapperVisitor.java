@@ -30,14 +30,32 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
     @Override
     public String visitOperable(ScrapperParser.OperableContext ctx) {
         if (!ctx.operable().isEmpty()) {
-            visit(ctx.primitive(0));
+            visitOperableOptions(ctx);
             stringBuilder.append(String.format(" %s ", ctx.OPERATOR(0).getText()));
             visit(ctx.operable(0));
-        } else if (ctx.elements().isEmpty())
-            visit(ctx.primitive(0));
-        else
-            visit(ctx.elements(0));
+        } else
+            visitOperableOptions(ctx);
         return "operable";
+    }
+
+    private void visitOperableOptions(ScrapperParser.OperableContext ctx) {
+        if (!ctx.primitive().isEmpty())
+            visit(ctx.primitive(0));
+        else if (!ctx.elements().isEmpty())
+            visit(ctx.elements(0));
+        else if (!ctx.parse().isEmpty())
+            visit(ctx.parse(0));
+    }
+    @Override
+    public String visitParse(ScrapperParser.ParseContext ctx){
+        switch (ctx.PARSE_OPTION().getText()){
+            case "INT" -> stringBuilder.append("parseInt(");
+            case "FLOAT" -> stringBuilder.append("parseFloat(");
+            default -> stringBuilder.append("String(");
+        }
+        visit(ctx.operable());
+        stringBuilder.append(")");
+        return "parse";
     }
 
     @Override

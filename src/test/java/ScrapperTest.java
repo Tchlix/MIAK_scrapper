@@ -19,7 +19,12 @@ public class ScrapperTest {
                 {"CREATE X SET GET ELEMENTS BY CLASS NAME \"classname\";", String.format("var X = document.getElementsByClassName(\"classname\")%n")},
                 {"X SET GET ELEMENTS BY TAG NAME \"tag\";", String.format("X = document.getElementsByTagName(\"tag\")%n")},
                 {"X SET 'lol' + GET ELEMENTS BY TAG NAME \"tag\";", String.format("X = 'lol' + document.getElementsByTagName(\"tag\")%n")},
-                {"LOG x;", "console.log(x)"},
+                {"X SET GET ELEMENTS BY TAG NAME \"tag\" + 'lol';", String.format("X = document.getElementsByTagName(\"tag\") + 'lol'%n")},
+                {"LOG x;", String.format("console.log(x)%n")},
+                {"LOG GET ELEMENTS BY TAG NAME 'tag';", String.format("console.log(document.getElementsByTagName('tag'))%n")},
+                {"x SET 12 + PARSE '12' TO INT;", String.format("x = 12 + parseInt('12')%n")},
+                {"x SET PARSE 12.5 + '11' TO STRING + 12;", String.format("x = String(12.5 + '11') + 12%n")},
+                {"x SET PARSE '11.2' TO FLOAT;", String.format("x = parseFloat('11.2')%n")},
         };
     }
 

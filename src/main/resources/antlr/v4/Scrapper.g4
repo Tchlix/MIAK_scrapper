@@ -22,8 +22,18 @@ log:
     WS
     operable;
 
+parse:
+    'PARSE'
+    WS
+    operable
+    WS
+    'TO'
+    WS
+    PARSE_OPTION
+    ;
+
 operable:
-    (primitive | elements | WS OPERATOR WS operable )+;
+    (primitive | elements | parse | WS OPERATOR WS operable )+;
 
 primitive:
     VAR | string | NUMBER;
@@ -53,6 +63,7 @@ DOUBLE_QUOTATION:
 WS: [ \t\r\n]+;
 
 ELEMENTS_TYPE: 'CLASS NAME' | 'TAG NAME';
+PARSE_OPTION: 'INT' | 'FLOAT' | 'STRING';
 
 END: ';';
 OPERATOR: [/*+-];
