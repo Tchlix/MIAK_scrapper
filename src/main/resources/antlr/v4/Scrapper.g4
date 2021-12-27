@@ -32,6 +32,20 @@ parse:
     PARSE_OPTION
     ;
 
+replace:
+    replaceSub
+    WS
+    'REPLACE'
+    WS
+    replaceSub
+    WS
+    'WITH'
+    WS
+    replaceSub
+    ;
+
+replaceSub:
+    (var | string | arrayElement | innerText);
 
 arrayElement:
     (var | string)
@@ -50,7 +64,16 @@ innerText:
 
 
 operable:
-    (primitive | elements | parse | arrayElement | innerText | WS OPERATOR WS operable )+;
+    (operableSub | WS OPERATOR WS operable )+;
+
+length:
+    (var | arrayElement | elements | string)
+    WS
+    'LENGTH'
+    ;
+
+operableSub:
+    (primitive | elements | parse | arrayElement | innerText | replace | length);
 
 primitive:
     VAR | string | NUMBER;
@@ -74,10 +97,10 @@ var:
     VAR;
 
 SINGLE_QUOTATION:
-    '\'' ~('\'')+ '\''
+    '\'' ~('\'')* '\''
     ;
 DOUBLE_QUOTATION:
-    '"' ~('"')+ '"'
+    '"' ~('"')* '"'
     ;
 
 WS: [ \t\r\n]+;

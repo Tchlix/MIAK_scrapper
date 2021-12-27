@@ -33,27 +33,35 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
 
     @Override
     public String visitOperable(ScrapperParser.OperableContext ctx) {
+        visit(ctx.operableSub(0));
         if (!ctx.operable().isEmpty()) {
-            //TODO find better way
-            visitOperableOptions(ctx);
             stringBuilder.append(String.format(" %s ", ctx.OPERATOR(0).getText()));
             visit(ctx.operable(0));
-        } else
-            visitOperableOptions(ctx);
+        }
         return "operable";
     }
 
-    private void visitOperableOptions(ScrapperParser.OperableContext ctx) {
-        if (!ctx.primitive().isEmpty())
-            visit(ctx.primitive(0));
-        else if (!ctx.elements().isEmpty())
-            visit(ctx.elements(0));
-        else if (!ctx.parse().isEmpty())
-            visit(ctx.parse(0));
-        else if (!ctx.arrayElement().isEmpty())
-            visit(ctx.arrayElement(0));
-        else if (!ctx.innerText().isEmpty())
-            visit(ctx.innerText(0));
+    @Override
+    public String visitOperableSub(ScrapperParser.OperableSubContext ctx) {
+        visitChildren(ctx);
+        return "operableSub";
+    }
+
+    @Override
+    public String visitReplace(ScrapperParser.ReplaceContext ctx) {
+        visit(ctx.replaceSub(0));
+        stringBuilder.append(".replace(");
+        visit(ctx.replaceSub(1));
+        stringBuilder.append(", ");
+        visit(ctx.replaceSub(2));
+        stringBuilder.append(')');
+        return "replace";
+    }
+
+    @Override
+    public String visitReplaceSub(ScrapperParser.ReplaceSubContext ctx){
+        visitChildren(ctx);
+        return "replaceSub";
     }
 
     @Override
@@ -84,6 +92,13 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
         visit(ctx.operable());
         stringBuilder.append(']');
         return "arrayElement";
+    }
+
+    @Override
+    public String visitLength(ScrapperParser.LengthContext ctx) {
+        visitChildren(ctx);
+        stringBuilder.append(".length");
+        return "primitive";
     }
 
     @Override

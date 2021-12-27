@@ -30,6 +30,9 @@ public class ScrapperTest {
                 {"x SET 'bercik'[2 + PARSE '112' TO INT];", String.format("x = 'bercik'[2 + parseInt('112')]%n")},
                 {"x SET bercik[2 + PARSE '112' TO INT] INNER TEXT;", String.format("x = bercik[2 + parseInt('112')].innerText%n")},
                 {"a[2] SET 5;", String.format("a[2] = 5%n")},
+                {"a[2] SET 'cos' REPLACE 's' WITH 'nieco';", String.format("a[2] = 'cos'.replace('s', 'nieco')%n")},
+                {"CREATE st SET arr[2 + 3] REPLACE 'ora' WITH 'aro';", String.format("var st = arr[2 + 3].replace('ora', 'aro')%n")},
+                {"x SET something LENGTH;", String.format("x = something.length%n")},
         };
     }
 
