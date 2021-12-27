@@ -10,7 +10,7 @@ create:
     ;
 
 assign:
-    VAR
+    (var | arrayElement)
     WS
     'SET'
     WS
@@ -32,8 +32,25 @@ parse:
     PARSE_OPTION
     ;
 
+
+arrayElement:
+    (var | string)
+    '['
+    operable
+    ']'
+    ;
+
+innerText:
+    (var | arrayElement)
+    WS
+    'INNER'
+    WS
+    'TEXT'
+    ;
+
+
 operable:
-    (primitive | elements | parse | WS OPERATOR WS operable )+;
+    (primitive | elements | parse | arrayElement | innerText | WS OPERATOR WS operable )+;
 
 primitive:
     VAR | string | NUMBER;
@@ -53,6 +70,9 @@ elements:
 string:
     (SINGLE_QUOTATION | DOUBLE_QUOTATION)
     ;
+var:
+    VAR;
+
 SINGLE_QUOTATION:
     '\'' ~('\'')+ '\''
     ;

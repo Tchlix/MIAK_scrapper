@@ -25,6 +25,11 @@ public class ScrapperTest {
                 {"x SET 12 + PARSE '12' TO INT;", String.format("x = 12 + parseInt('12')%n")},
                 {"x SET PARSE 12.5 + '11' TO STRING + 12;", String.format("x = String(12.5 + '11') + 12%n")},
                 {"x SET PARSE '11.2' TO FLOAT;", String.format("x = parseFloat('11.2')%n")},
+                {"x SET bercik[2] + 12 + bercik[3];", String.format("x = bercik[2] + 12 + bercik[3]%n")},
+                {"x SET bercik[2 + PARSE '112' TO INT];", String.format("x = bercik[2 + parseInt('112')]%n")},
+                {"x SET 'bercik'[2 + PARSE '112' TO INT];", String.format("x = 'bercik'[2 + parseInt('112')]%n")},
+                {"x SET bercik[2 + PARSE '112' TO INT] INNER TEXT;", String.format("x = bercik[2 + parseInt('112')].innerText%n")},
+                {"a[2] SET 5;", String.format("a[2] = 5%n")},
         };
     }
 
