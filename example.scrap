@@ -1,4 +1,12 @@
-CREATE titles SET GET ELEMENTS BY CLASS NAME "m-title-with-label-item";
+CREATE titles SET GET ELEMENTS BY CLASS NAME "giveaway__heading__name";
+CREATE length SET 0;
 FOR LOOP i FROM 0 TO titles LENGTH
-    LOG titles[i] INNER TEXT;
+    CREATE url SET titles[i] GET ATTRIBUTE "href";
+    CREATE underSite SET GET WEB url;
+    CREATE elements SET underSite GET ELEMENTS BY CLASS NAME "page__description";
+    IF elements LENGTH > 0
+        LOG elements[0] INNER TEXT;
+        LOG "********************************";
+    END IF;
 END FOR;
+LOG length;

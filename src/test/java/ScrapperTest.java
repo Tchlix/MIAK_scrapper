@@ -6,7 +6,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class ScrapperTest {
-    private static String WEB_REQUESTER = "class WebRequester {static request = new XMLHttpRequest();static parser = new DOMParser();static getRequest(address) {this.request.open('GET', address, false);this.request.send(null);return this.parser.parseFromString(this.request.responseText, 'text/html');}}\n";
+    private static final String WEB_REQUESTER = String.format("class WebRequester {static request = new XMLHttpRequest();static parser = new DOMParser();static getRequest(address) {this.request.open('GET', address, false);this.request.send(null);return this.parser.parseFromString(this.request.responseText, 'text/html');}}%n%n");
 
     @DataProvider(name = "data")
     public Object[][] dataProv() {
@@ -23,13 +23,13 @@ public class ScrapperTest {
                 {"X SET 'lol' + GET ELEMENTS BY TAG NAME \"tag\";", String.format("X = 'lol' + document.getElementsByTagName(\"tag\")%n")},
                 {"X SET GET ELEMENTS BY TAG NAME \"tag\" + 'lol';", String.format("X = document.getElementsByTagName(\"tag\") + 'lol'%n")},
                 {"LOG x;", String.format("console.log(x)%n")},
+                {"LOG underSite GET ELEMENTS BY CLASS NAME \"page__description\";;", String.format("console.log(underSite.getElementsByClassName(\"page__description\"))%n")},
                 {"LOG GET ELEMENTS BY TAG NAME 'tag';", String.format("console.log(document.getElementsByTagName('tag'))%n")},
                 {"x SET 12 + PARSE '12' TO INT;", String.format("x = 12 + parseInt('12')%n")},
                 {"x SET PARSE 12.5 + '11' TO STRING + 12;", String.format("x = String(12.5 + '11') + 12%n")},
                 {"x SET PARSE '11.2' TO FLOAT;", String.format("x = parseFloat('11.2')%n")},
                 {"x SET bercik[2] + 12 + bercik[3];", String.format("x = bercik[2] + 12 + bercik[3]%n")},
                 {"x SET bercik[2 + PARSE '112' TO INT];", String.format("x = bercik[2 + parseInt('112')]%n")},
-                {"x SET 'bercik'[2 + PARSE '112' TO INT];", String.format("x = 'bercik'[2 + parseInt('112')]%n")},
                 {"x SET bercik[2 + PARSE '112' TO INT] INNER TEXT;", String.format("x = bercik[2 + parseInt('112')].innerText%n")},
                 {"a[2] SET 5;", String.format("a[2] = 5%n")},
                 {"a[2] SET 'cos' REPLACE 's' WITH 'nieco';", String.format("a[2] = 'cos'.replace('s', 'nieco')%n")},
@@ -37,7 +37,7 @@ public class ScrapperTest {
                 {"x SET something LENGTH;", String.format("x = something.length%n")},
                 {"x SET GET WEB 'https://www.youtube.com/';", String.format(WEB_REQUESTER + "x = WebRequester.getRequest('https://www.youtube.com/')%n")},
                 {"x SET GET WEB variable GET ELEMENTS BY CLASS NAME 'someclass';", String.format(WEB_REQUESTER + "x = WebRequester.getRequest(variable).getElementsByClassName('someclass')%n")},
-                {"CREATE x SET 5;FOR LOOP i FROM 1 TO 5 x SET x + 1; END FOR;", String.format("let x = 5%nfor( let i = 1; i < 5; i++){%n" +"x = x + 1%n}")},
+                {"CREATE x SET 5;FOR LOOP i FROM 1 TO 5 x SET x + 1; END FOR;", String.format("let x = 5%nfor( let i = 1; i < 5; i++){%n\tx = x + 1%n}%n")},
         };
     }
 

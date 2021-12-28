@@ -1,7 +1,12 @@
 grammar Scrapper;
+start:
+    codeBlock;
 
-program:
-    (((create | assign | log | forLoop) END ) | WS)*;
+codeBlock:
+    (mainFunction END | WS)*;
+
+mainFunction:
+    (ifBlock | create | assign | log | forLoop);
 
 create:
     'CREATE'
@@ -14,18 +19,18 @@ assign:
     WS
     'SET'
     WS
-    (operable | request)
+    (operation | request)
     ;
 
 log:
     'LOG'
     WS
-    operable;
+    operation;
 
 parse:
     'PARSE'
     WS
-    operable
+    operation
     WS
     'TO'
     WS
@@ -33,33 +38,58 @@ parse:
     ;
 
 replace:
-    replaceSub
+    string
     WS
     'REPLACE'
     WS
-    replaceSub
+    string
     WS
     'WITH'
     WS
-    replaceSub
+    string
     ;
 
-replaceSub:
-    (var | string | arrayElement | innerText);
-
 arrayElement:
-    (var | string)
+    var
     '['
-    operable
+    operation
     ']'
     ;
 
-innerText:
+string:
+    (SINGLE_QUOTATION | DOUBLE_QUOTATION | var | arrayElement | innerText | getAttribute);
+
+getAttribute:
     (var | arrayElement)
+    WS
+    'GET'
+    WS
+    'ATTRIBUTE'
+    WS
+    string
+    ;
+
+innerText:
+    (var | arrayElement | elements)
     WS
     'INNER'
     WS
     'TEXT'
+    ;
+
+ifBlock:
+    'IF'
+    WS
+    operable
+    WS
+    IF_OPERATOR
+    WS
+    operable
+    WS
+    codeBlock
+    'END'
+    WS
+    'IF'
     ;
 
 forLoop:
@@ -77,7 +107,7 @@ forLoop:
     WS
     number
     WS
-    program
+    codeBlock
     WS?
     'END'
     WS
@@ -87,8 +117,8 @@ forLoop:
 number:
     (NUMBER | arrayElement | length );
 
-operable:
-    (operableSub | WS OPERATOR WS operable )+;
+operation:
+    (operable | WS OPERATOR WS operation )+;
 
 length:
     (var | arrayElement | elements | string)
@@ -96,19 +126,19 @@ length:
     'LENGTH'
     ;
 
-operableSub:
-    (primitive | elements | parse | arrayElement | innerText | replace | length );
+operable:
+    (primitive | elements | parse | arrayElement | innerText | replace | length | getAttribute);
 
 request:
     'GET'
     WS
     'WEB'
     WS
-    replaceSub
+    string
     ;
 
 primitive:
-    VAR | string | NUMBER;
+    VAR | SINGLE_QUOTATION | DOUBLE_QUOTATION | NUMBER;
 
 elements:
    documents?
@@ -126,9 +156,6 @@ elements:
 documents:
     (VAR | request | arrayElement)WS;
 
-string:
-    (SINGLE_QUOTATION | DOUBLE_QUOTATION)
-    ;
 var:
     VAR;
 
@@ -146,5 +173,6 @@ PARSE_OPTION: 'INT' | 'FLOAT' | 'STRING';
 
 END: ';';
 OPERATOR: [/*+-];
+IF_OPERATOR: '<=' | '>=' | '==' | '!=' | '<' | '>';
 VAR: [a-zA-Z][a-zA-Z0-9]*;
 NUMBER: [+-]?([0-9]*[.])?[0-9]+;
