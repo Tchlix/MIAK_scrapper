@@ -38,6 +38,8 @@ public class ScrapperTest {
                 {"x SET GET WEB 'https://www.youtube.com/';", String.format(WEB_REQUESTER + "x = WebRequester.getRequest('https://www.youtube.com/')%n")},
                 {"x SET GET WEB variable GET ELEMENTS BY CLASS NAME 'someclass';", String.format(WEB_REQUESTER + "x = WebRequester.getRequest(variable).getElementsByClassName('someclass')%n")},
                 {"CREATE x SET 5;FOR LOOP i FROM 1 TO 5 x SET x + 1; END FOR;", String.format("let x = 5%nfor( let i = 1; i < 5; i++){%n\tx = x + 1%n}%n")},
+                {"#Comment", String.format("")},
+                {String.format("a[2] SET 5;#Comment%na[1] SET 'something';"), String.format("a[2] = 5%na[1] = 'something'%n")},
         };
     }
 

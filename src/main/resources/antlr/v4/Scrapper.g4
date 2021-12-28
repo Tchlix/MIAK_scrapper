@@ -3,7 +3,7 @@ start:
     codeBlock;
 
 codeBlock:
-    (mainFunction END | WS)*;
+    (mainFunction END | COMMENT | WS)*;
 
 mainFunction:
     (ifBlock | create | assign | log | forLoop);
@@ -158,6 +158,10 @@ documents:
 
 var:
     VAR;
+
+COMMENT
+  :  '#' ~( '\r' | '\n' )* -> skip;
+
 
 SINGLE_QUOTATION:
     '\'' ~('\'')* '\''
