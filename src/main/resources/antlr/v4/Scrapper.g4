@@ -111,7 +111,7 @@ primitive:
     VAR | string | NUMBER;
 
 elements:
-   elementsSub?
+   documents?
    'GET'
    WS
    'ELEMENTS'
@@ -123,7 +123,7 @@ elements:
    string
    ;
 
-elementsSub:
+documents:
     (VAR | request | arrayElement)WS;
 
 string:

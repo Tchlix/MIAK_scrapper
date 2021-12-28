@@ -24,7 +24,7 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
     @Override
     public String visitCreate(ScrapperParser.CreateContext ctx) {
         if (!variables.add(ctx.assign().var().getText()))
-            throw new ParseCancellationException(String.format("Identifier %s has already been declared",ctx.assign().var().getText()));
+            throw new ParseCancellationException(String.format("Identifier %s has already been declared", ctx.assign().var().getText()));
         stringBuilder.append("let ");
         visitChildren(ctx);
         return "create";
@@ -47,7 +47,7 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
 
     @Override
     public String visitNumber(ScrapperParser.NumberContext ctx) {
-        if(ctx.NUMBER() != null)
+        if (ctx.NUMBER() != null)
             stringBuilder.append(ctx.NUMBER().getText());
         else
             visitChildren(ctx);
@@ -56,7 +56,7 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
 
     @Override
     public String visitForLoop(ScrapperParser.ForLoopContext ctx) {
-        stringBuilder.append(String.format("for( let %s = ",ctx.VAR().getText()));
+        stringBuilder.append(String.format("for( let %s = ", ctx.VAR().getText()));
         visit(ctx.number(0));
         stringBuilder.append("; i < ");
         visit(ctx.number(1));
@@ -160,10 +160,10 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
     @Override
     public String visitElements(ScrapperParser.ElementsContext ctx) {
 
-        if (ctx.elementsSub() == null)
+        if (ctx.documents() == null)
             stringBuilder.append("document");
         else
-            visit(ctx.elementsSub());
+            visit(ctx.documents());
 
         stringBuilder.append(".getElementsBy").append(
                 ctx.ELEMENTS_TYPE().getText().equals("CLASS NAME") ?
@@ -174,7 +174,7 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
     }
 
     @Override
-    public String visitElementsSub(ScrapperParser.ElementsSubContext ctx) {
+    public String visitDocuments(ScrapperParser.DocumentsContext ctx) {
         visitChildren(ctx);
         return "elementsSub";
     }
