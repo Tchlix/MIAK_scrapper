@@ -1,13 +1,4 @@
-CREATE returnBox SET
-    GET ELEMENTS BY CLASS NAME "TableColumn__StyledTableColumn-sc-v4y1km-0 efxYxL";
-
-CREATE invested SET
-    PARSE
-        returnBox[0] INNER TEXT REPLACE ',' WITH ''
-    TO FLOAT;
-
-CREATE total SET
-    PARSE
-        returnBox INNER TEXT REPLACE ',' WITH ''
-    TO FLOAT;
-
+CREATE titles SET GET ELEMENTS BY CLASS NAME "m-title-with-label-item";
+FOR LOOP i FROM 0 TO titles LENGTH
+    LOG titles[i] INNER TEXT;
+END FOR;

@@ -1,7 +1,7 @@
 grammar Scrapper;
 
 program:
-    (((create | assign | log ) END ) | WS)*;
+    (((create | assign | log | forLoop) END ) | WS)*;
 
 create:
     'CREATE'
@@ -14,7 +14,7 @@ assign:
     WS
     'SET'
     WS
-    operable
+    (operable | request)
     ;
 
 log:
@@ -62,6 +62,30 @@ innerText:
     'TEXT'
     ;
 
+forLoop:
+    'FOR'
+    WS
+    'LOOP'
+    WS
+    VAR
+    WS
+    'FROM'
+    WS
+    number
+    WS
+    'TO'
+    WS
+    number
+    WS
+    program
+    WS?
+    'END'
+    WS
+    'FOR'
+    ;
+
+number:
+    (NUMBER | arrayElement | length );
 
 operable:
     (operableSub | WS OPERATOR WS operable )+;
@@ -73,12 +97,21 @@ length:
     ;
 
 operableSub:
-    (primitive | elements | parse | arrayElement | innerText | replace | length);
+    (primitive | elements | parse | arrayElement | innerText | replace | length );
+
+request:
+    'GET'
+    WS
+    'WEB'
+    WS
+    replaceSub
+    ;
 
 primitive:
     VAR | string | NUMBER;
 
 elements:
+   elementsSub?
    'GET'
    WS
    'ELEMENTS'
@@ -89,6 +122,9 @@ elements:
    WS
    string
    ;
+
+elementsSub:
+    (VAR | request | arrayElement)WS;
 
 string:
     (SINGLE_QUOTATION | DOUBLE_QUOTATION)

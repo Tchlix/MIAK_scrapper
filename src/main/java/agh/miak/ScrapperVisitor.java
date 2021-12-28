@@ -2,19 +2,30 @@ package agh.miak;
 
 import antlr.v4.ScrapperBaseVisitor;
 import antlr.v4.ScrapperParser;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
+
+import java.util.HashSet;
+import java.util.Set;
 
 class ScrapperVisitor extends ScrapperBaseVisitor<String> {
+    private static final String WEB_REQUESTER = "class WebRequester {static request = new XMLHttpRequest();static parser = new DOMParser();static getRequest(address) {this.request.open('GET', address, false);this.request.send(null);return this.parser.parseFromString(this.request.responseText, 'text/html');}}\n";
+    Set<String> variables = new HashSet<>();
     StringBuilder stringBuilder = new StringBuilder();
+    boolean request = false;
 
     @Override
     public String visitProgram(ScrapperParser.ProgramContext ctx) {
         visitChildren(ctx);
+        if (request)
+            stringBuilder.insert(0, WEB_REQUESTER);
         return stringBuilder.toString();
     }
 
     @Override
     public String visitCreate(ScrapperParser.CreateContext ctx) {
-        stringBuilder.append("var ");
+        if (!variables.add(ctx.assign().var().getText()))
+            throw new ParseCancellationException(String.format("Identifier %s has already been declared",ctx.assign().var().getText()));
+        stringBuilder.append("let ");
         visitChildren(ctx);
         return "create";
     }
@@ -26,9 +37,33 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
                 ctx.var() :
                 ctx.arrayElement());
         stringBuilder.append(" = ");
-        visit(ctx.operable());
+        if (ctx.operable() == null)
+            visit(ctx.request());
+        else
+            visit(ctx.operable());
         stringBuilder.append(System.lineSeparator());
         return "assign";
+    }
+
+    @Override
+    public String visitNumber(ScrapperParser.NumberContext ctx) {
+        if(ctx.NUMBER() != null)
+            stringBuilder.append(ctx.NUMBER().getText());
+        else
+            visitChildren(ctx);
+        return "number";
+    }
+
+    @Override
+    public String visitForLoop(ScrapperParser.ForLoopContext ctx) {
+        stringBuilder.append(String.format("for( let %s = ",ctx.VAR().getText()));
+        visit(ctx.number(0));
+        stringBuilder.append("; i < ");
+        visit(ctx.number(1));
+        stringBuilder.append(String.format("; i++){%n"));
+        visit(ctx.program());
+        stringBuilder.append('}');
+        return "forLoop";
     }
 
     @Override
@@ -59,7 +94,7 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
     }
 
     @Override
-    public String visitReplaceSub(ScrapperParser.ReplaceSubContext ctx){
+    public String visitReplaceSub(ScrapperParser.ReplaceSubContext ctx) {
         visitChildren(ctx);
         return "replaceSub";
     }
@@ -115,18 +150,42 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
 
     @Override
     public String visitVar(ScrapperParser.VarContext ctx) {
+        //TODO production only
+        //if(!variables.contains(ctx.getText()))
+        //    throw new ParseCancellationException("Unknown variable " + ctx.getText());
         stringBuilder.append(ctx.getText());
         return "var";
     }
 
     @Override
     public String visitElements(ScrapperParser.ElementsContext ctx) {
-        stringBuilder.append("document.getElementsBy").append(
+
+        if (ctx.elementsSub() == null)
+            stringBuilder.append("document");
+        else
+            visit(ctx.elementsSub());
+
+        stringBuilder.append(".getElementsBy").append(
                 ctx.ELEMENTS_TYPE().getText().equals("CLASS NAME") ?
                         "ClassName" :
                         "TagName"
         ).append('(').append(ctx.string().getText()).append(')');
         return "elements";
+    }
+
+    @Override
+    public String visitElementsSub(ScrapperParser.ElementsSubContext ctx) {
+        visitChildren(ctx);
+        return "elementsSub";
+    }
+
+    @Override
+    public String visitRequest(ScrapperParser.RequestContext ctx) {
+        request = true;
+        stringBuilder.append("WebRequester.getRequest(");
+        visitChildren(ctx);
+        stringBuilder.append(')');
+        return "request";
     }
 
     @Override
