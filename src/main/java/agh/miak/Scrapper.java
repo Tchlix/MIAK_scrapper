@@ -12,6 +12,8 @@ public record Scrapper(CharStream input) {
                 new CommonTokenStream(lexer)
         );
         parser.addErrorListener(ThrowingErrorListener.INSTANCE);
-        return new ScrapperVisitor().visit(parser.start());
+        var visitor = new ScrapperVisitor();
+        visitor.visit(parser.start());
+        return visitor.toString();
     }
 }

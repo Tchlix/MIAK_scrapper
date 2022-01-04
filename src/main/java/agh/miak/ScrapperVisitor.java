@@ -7,7 +7,7 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import java.util.HashSet;
 import java.util.Set;
 
-class ScrapperVisitor extends ScrapperBaseVisitor<String> {
+class ScrapperVisitor extends ScrapperBaseVisitor<Void> {
     private static final String WEB_REQUESTER = String.format("class WebRequester {static request = new XMLHttpRequest();static parser = new DOMParser();static getRequest(address) {this.request.open('GET', address, false);this.request.send(null);return this.parser.parseFromString(this.request.responseText, 'text/html');}}%n%n");
     Set<String> variables = new HashSet<>();
     StringBuilder stringBuilder = new StringBuilder();
@@ -15,28 +15,33 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
     int indentLevel = 0;
 
     @Override
-    public String visitStart(ScrapperParser.StartContext ctx) {
-        visitChildren(ctx);
-        if (request)
-            stringBuilder.insert(0, WEB_REQUESTER);
+    public String toString() {
         return stringBuilder.toString();
     }
 
     @Override
-    public String visitCodeBlock(ScrapperParser.CodeBlockContext ctx) {
+    public Void visitStart(ScrapperParser.StartContext ctx) {
         visitChildren(ctx);
-        return "program";
+        if (request)
+            stringBuilder.insert(0, WEB_REQUESTER);
+        return null;
     }
 
     @Override
-    public String visitMainFunction(ScrapperParser.MainFunctionContext ctx) {
+    public Void visitCodeBlock(ScrapperParser.CodeBlockContext ctx) {
+        visitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitMainFunction(ScrapperParser.MainFunctionContext ctx) {
         addIndent();
         visitChildren(ctx);
-        return "mainFunction";
+        return null;
     }
 
     @Override
-    public String visitGetAttribute(ScrapperParser.GetAttributeContext ctx) {
+    public Void visitGetAttribute(ScrapperParser.GetAttributeContext ctx) {
         //TODO better
         visit(ctx.var() != null ?
                 ctx.var() :
@@ -44,20 +49,20 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
         stringBuilder.append(".getAttribute(");
         visit(ctx.string());
         stringBuilder.append(")");
-        return "getAttribute";
+        return null;
     }
 
     @Override
-    public String visitCreate(ScrapperParser.CreateContext ctx) {
+    public Void visitCreate(ScrapperParser.CreateContext ctx) {
         if (!variables.add(ctx.assign().var().getText()))
             throw new ParseCancellationException(String.format("Identifier %s has already been declared", ctx.assign().var().getText()));
         stringBuilder.append("let ");
         visitChildren(ctx);
-        return "create";
+        return null;
     }
 
     @Override
-    public String visitAssign(ScrapperParser.AssignContext ctx) {
+    public Void visitAssign(ScrapperParser.AssignContext ctx) {
         //TODO better ?
         visit(ctx.var() != null ?
                 ctx.var() :
@@ -68,20 +73,20 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
         else
             visit(ctx.operation());
         stringBuilder.append(System.lineSeparator());
-        return "assign";
+        return null;
     }
 
     @Override
-    public String visitNumber(ScrapperParser.NumberContext ctx) {
+    public Void visitNumber(ScrapperParser.NumberContext ctx) {
         if (ctx.NUMBER() != null)
             stringBuilder.append(ctx.NUMBER().getText());
         else
             visitChildren(ctx);
-        return "number";
+        return null;
     }
 
     @Override
-    public String visitForLoop(ScrapperParser.ForLoopContext ctx) {
+    public Void visitForLoop(ScrapperParser.ForLoopContext ctx) {
         String loopVarName = ctx.VAR().getText();
         stringBuilder.append(String.format("for( let %s = ", loopVarName));
         visit(ctx.number(0));
@@ -93,11 +98,11 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
         indentLevel--;
         addIndent();
         stringBuilder.append(String.format("}%n"));
-        return "forLoop";
+        return null;
     }
 
     @Override
-    public String visitIfBlock(ScrapperParser.IfBlockContext ctx) {
+    public Void visitIfBlock(ScrapperParser.IfBlockContext ctx) {
         stringBuilder.append("if( ");
         visit(ctx.operable(0));
         stringBuilder.append(String.format(" %s ", ctx.IF_OPERATOR().getText()));
@@ -108,38 +113,38 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
         indentLevel--;
         addIndent();
         stringBuilder.append(String.format("}%n"));
-        return "forLoop";
+        return null;
     }
 
     @Override
-    public String visitOperation(ScrapperParser.OperationContext ctx) {
+    public Void visitOperation(ScrapperParser.OperationContext ctx) {
         visit(ctx.operable(0));
         if (!ctx.operation().isEmpty()) {
             stringBuilder.append(String.format(" %s ", ctx.OPERATOR(0).getText()));
             visit(ctx.operation(0));
         }
-        return "operable";
+        return null;
     }
 
     @Override
-    public String visitOperable(ScrapperParser.OperableContext ctx) {
+    public Void visitOperable(ScrapperParser.OperableContext ctx) {
         visitChildren(ctx);
-        return "operableSub";
+        return null;
     }
 
     @Override
-    public String visitReplace(ScrapperParser.ReplaceContext ctx) {
+    public Void visitReplace(ScrapperParser.ReplaceContext ctx) {
         visit(ctx.string(0));
         stringBuilder.append(".replace(");
         visit(ctx.string(1));
         stringBuilder.append(", ");
         visit(ctx.string(2));
         stringBuilder.append(')');
-        return "replace";
+        return null;
     }
 
     @Override
-    public String visitParse(ScrapperParser.ParseContext ctx) {
+    public Void visitParse(ScrapperParser.ParseContext ctx) {
         switch (ctx.PARSE_OPTION().getText()) {
             case "INT" -> stringBuilder.append("parseInt(");
             case "FLOAT" -> stringBuilder.append("parseFloat(");
@@ -147,55 +152,56 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
         }
         visit(ctx.operation());
         stringBuilder.append(")");
-        return "parse";
+        return null;
     }
 
     @Override
-    public String visitInnerText(ScrapperParser.InnerTextContext ctx) {
+    public Void visitInnerText(ScrapperParser.InnerTextContext ctx) {
         visitChildren(ctx);
         stringBuilder.append(".innerText");
-        return "innerText";
+        return null;
     }
 
     @Override
-    public String visitArrayElement(ScrapperParser.ArrayElementContext ctx) {
+    public Void visitArrayElement(ScrapperParser.ArrayElementContext ctx) {
         visit(ctx.var());
         stringBuilder.append('[');
         visit(ctx.operation());
         stringBuilder.append(']');
-        return "arrayElement";
+        return null;
     }
 
     @Override
-    public String visitLength(ScrapperParser.LengthContext ctx) {
+    public Void visitLength(ScrapperParser.LengthContext ctx) {
         visitChildren(ctx);
         stringBuilder.append(".length");
-        return "primitive";
+        return null;
     }
 
     @Override
-    public String visitPrimitive(ScrapperParser.PrimitiveContext ctx) {
+    public Void visitPrimitive(ScrapperParser.PrimitiveContext ctx) {
         stringBuilder.append(ctx.getText());
-        return "primitive";
+        return null;
     }
 
     @Override
-    public String visitString(ScrapperParser.StringContext ctx) {
+    public Void visitString(ScrapperParser.StringContext ctx) {
         stringBuilder.append(ctx.getText());
-        return "string";
+        return null;
     }
 
     @Override
-    public String visitVar(ScrapperParser.VarContext ctx) {
-        //TODO production only
-        //if(!variables.contains(ctx.getText()))
-        //    throw new ParseCancellationException("Unknown variable " + ctx.getText());
+    public Void visitVar(ScrapperParser.VarContext ctx) {
+        /*TODO production only
+        if(!variables.contains(ctx.getText()))
+            throw new ParseCancellationException("Unknown variable " + ctx.getText());
+        */
         stringBuilder.append(ctx.getText());
-        return "var";
+        return null;
     }
 
     @Override
-    public String visitElements(ScrapperParser.ElementsContext ctx) {
+    public Void visitElements(ScrapperParser.ElementsContext ctx) {
 
         if (ctx.documents() == null)
             stringBuilder.append("document");
@@ -207,33 +213,33 @@ class ScrapperVisitor extends ScrapperBaseVisitor<String> {
                         "ClassName" :
                         "TagName"
         ).append('(').append(ctx.string().getText()).append(')');
-        return "elements";
+        return null;
     }
 
     @Override
-    public String visitDocuments(ScrapperParser.DocumentsContext ctx) {
+    public Void visitDocuments(ScrapperParser.DocumentsContext ctx) {
         if (ctx.VAR() != null)
             stringBuilder.append(ctx.VAR().getText());
         else
             visitChildren(ctx);
-        return "elementsSub";
+        return null;
     }
 
     @Override
-    public String visitRequest(ScrapperParser.RequestContext ctx) {
+    public Void visitRequest(ScrapperParser.RequestContext ctx) {
         request = true;
         stringBuilder.append("WebRequester.getRequest(");
         visitChildren(ctx);
         stringBuilder.append(')');
-        return "request";
+        return null;
     }
 
     @Override
-    public String visitLog(ScrapperParser.LogContext ctx) {
+    public Void visitLog(ScrapperParser.LogContext ctx) {
         stringBuilder.append("console.log(");
         visit(ctx.operation());
         stringBuilder.append(")").append(System.lineSeparator());
-        return "log";
+        return null;
     }
 
     private void addIndent() {
