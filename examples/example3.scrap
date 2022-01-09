@@ -1,0 +1,8 @@
+CREATE x SET 0;
+FOR LOOP i FROM 0 TO 10
+    IF i == 5
+        LOG "5";
+    END IF;
+    x SET x + 1;
+END FOR;
+LOG x;

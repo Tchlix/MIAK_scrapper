@@ -1,10 +1,11 @@
 #https://www.bankier.pl/
+#Wypisuje tytuły wraz z nagłówkami
 CREATE titles SET GET ELEMENTS BY CLASS NAME "m-link-with-image-list__anchor";
 FOR LOOP i FROM 0 TO titles LENGTH
     CREATE url SET titles[i] GET ATTRIBUTE "href";
-    CREATE underSite SET GET WEB url;
-    CREATE header SET underSite GET ELEMENTS BY CLASS NAME "a-heading -blue";
-    CREATE body SET underSite GET ELEMENTS BY CLASS NAME "lead";
+    CREATE subpage SET GET WEB url;
+    CREATE header SET subpage GET ELEMENTS BY CLASS NAME "a-heading -blue";
+    CREATE body SET subpage GET ELEMENTS BY CLASS NAME "lead";
     LOG header[0] INNER TEXT + "\n\n\n" + body[0] INNER TEXT + "\n\n********************************\n\n";
 END FOR;
 LOG length;

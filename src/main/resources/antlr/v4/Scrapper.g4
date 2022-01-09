@@ -15,12 +15,15 @@ create:
     ;
 
 assign:
-    (var | arrayElement)
+    assignable
     WS
     'SET'
     WS
-    (operation | request)
+    (operation | request | fchildren)
     ;
+
+assignable:
+    (var | arrayElement);
 
 log:
     'LOG'
@@ -49,18 +52,30 @@ replace:
     string
     ;
 
+fchildren:
+    'CHILDREN'
+    WS*
+    '('
+    WS*
+    assignable
+    WS*
+    ')'
+    ;
+
 arrayElement:
-    var
+    (var | fchildren)
+    (
     '['
     operation
     ']'
+    )+
     ;
 
 string:
     (SINGLE_QUOTATION | DOUBLE_QUOTATION | var | arrayElement | innerText | getAttribute);
 
 getAttribute:
-    (var | arrayElement)
+    assignable
     WS
     'GET'
     WS

@@ -1,4 +1,5 @@
 #https://www.steamgifts.com/
+#Wypisuje opisy giveawayów
 CREATE titles SET GET ELEMENTS BY CLASS NAME "giveaway__heading__name";
 CREATE length SET 0;
 FOR LOOP i FROM 0 TO titles LENGTH

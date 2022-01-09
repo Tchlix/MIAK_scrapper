@@ -2,7 +2,6 @@ package agh.miak;
 
 import antlr.v4.ScrapperBaseVisitor;
 import antlr.v4.ScrapperParser;
-import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -42,10 +41,7 @@ class ScrapperVisitor extends ScrapperBaseVisitor<Void> {
 
     @Override
     public Void visitGetAttribute(ScrapperParser.GetAttributeContext ctx) {
-        //TODO better
-        visit(ctx.var() != null ?
-                ctx.var() :
-                ctx.arrayElement());
+        visit(ctx.assignable());
         stringBuilder.append(".getAttribute(");
         visit(ctx.string());
         stringBuilder.append(")");
@@ -54,22 +50,32 @@ class ScrapperVisitor extends ScrapperBaseVisitor<Void> {
 
     @Override
     public Void visitCreate(ScrapperParser.CreateContext ctx) {
-        if (!variables.add(ctx.assign().var().getText()))
-            throw new ParseCancellationException(String.format("Identifier %s has already been declared", ctx.assign().var().getText()));
         stringBuilder.append("let ");
         visitChildren(ctx);
         return null;
     }
 
     @Override
+    public Void visitFchildren(ScrapperParser.FchildrenContext ctx) {
+        visitChildren(ctx);
+        stringBuilder.append(".children");
+        return null;
+    }
+
+    @Override
+    public Void visitAssignable(ScrapperParser.AssignableContext ctx) {
+        visitChildren(ctx);
+        return null;
+    }
+
+    @Override
     public Void visitAssign(ScrapperParser.AssignContext ctx) {
-        //TODO better ?
-        visit(ctx.var() != null ?
-                ctx.var() :
-                ctx.arrayElement());
+        visit(ctx.assignable());
         stringBuilder.append(" = ");
-        if (ctx.operation() == null)
+        if (ctx.request() != null)
             visit(ctx.request());
+        else if (ctx.fchildren() != null)
+            visit(ctx.fchildren());
         else
             visit(ctx.operation());
         stringBuilder.append(System.lineSeparator());
@@ -164,10 +170,13 @@ class ScrapperVisitor extends ScrapperBaseVisitor<Void> {
 
     @Override
     public Void visitArrayElement(ScrapperParser.ArrayElementContext ctx) {
-        visit(ctx.var());
-        stringBuilder.append('[');
-        visit(ctx.operation());
-        stringBuilder.append(']');
+        visit(ctx.var() != null ? ctx.var() : ctx.fchildren());
+
+        for (ScrapperParser.OperationContext context : ctx.operation()) {
+            stringBuilder.append('[');
+            visit(context);
+            stringBuilder.append(']');
+        }
         return null;
     }
 
@@ -192,10 +201,6 @@ class ScrapperVisitor extends ScrapperBaseVisitor<Void> {
 
     @Override
     public Void visitVar(ScrapperParser.VarContext ctx) {
-        /*TODO production only
-        if(!variables.contains(ctx.getText()))
-            throw new ParseCancellationException("Unknown variable " + ctx.getText());
-        */
         stringBuilder.append(ctx.getText());
         return null;
     }

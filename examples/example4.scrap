@@ -1,0 +1,16 @@
+#https://www.stockwatch.pl/gpw/indeks/gpw,sklad.aspx
+#Wypisuje wszystkie firmy wraz z ich C/Z
+CREATE companies SET GET ELEMENTS BY CLASS NAME "l indicstock";
+FOR LOOP i FROM 0 TO companies LENGTH
+    CREATE url SET CHILDREN(CHILDREN(companies[i])[0])[1] GET ATTRIBUTE "href";
+    CREATE document SET GET WEB url;
+    CREATE element SET document GET ELEMENTS BY CLASS NAME "scrx";
+    CREATE names SET document GET ELEMENTS BY CLASS NAME "cTick";
+
+    CREATE stringCZ SET element[0] INNER TEXT;
+    LOG names[0] INNER TEXT +
+        " " +
+        PARSE
+            stringCZ REPLACE ',' WITH '.'
+        TO FLOAT;
+END FOR;
