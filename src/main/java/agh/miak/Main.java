@@ -16,7 +16,7 @@ public class Main {
         try {
             input = CharStreams.fromFileName(args[0]);
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.err.println("Couldn't open file " + e.getMessage());
             return;
         }
 

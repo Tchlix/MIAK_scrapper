@@ -2,18 +2,22 @@ grammar Scrapper;
 start:
     codeBlock;
 
+//Main block, if  block or loop block
 codeBlock:
     (mainFunction END | COMMENT | WS)*;
 
+//Functions which end with ';'
 mainFunction:
     (ifBlock | create | assign | log | forLoop);
 
+//Create new variable
 create:
     'CREATE'
     WS
     assign
     ;
 
+//Assign value to variable
 assign:
     assignable
     WS
@@ -22,14 +26,17 @@ assign:
     (operation | request | fchildren)
     ;
 
+//Tokens to which we can assign variable
 assignable:
     (var | arrayElement);
 
+//Log operation
 log:
     'LOG'
     WS
     operation;
 
+//Parse operation
 parse:
     'PARSE'
     WS
@@ -40,6 +47,7 @@ parse:
     PARSE_OPTION
     ;
 
+//Replace operation
 replace:
     string
     WS
@@ -52,6 +60,7 @@ replace:
     string
     ;
 
+//Get element children operation
 fchildren:
     'CHILDREN'
     WS*
@@ -62,6 +71,7 @@ fchildren:
     ')'
     ;
 
+//Get array elements from appropriate tokens
 arrayElement:
     (var | fchildren)
     (
@@ -71,9 +81,11 @@ arrayElement:
     )+
     ;
 
+//Tokens which have/can contain string data
 string:
     (SINGLE_QUOTATION | DOUBLE_QUOTATION | var | arrayElement | innerText | getAttribute);
 
+//Get attribute from tokens which can contain element data
 getAttribute:
     assignable
     WS
@@ -84,14 +96,16 @@ getAttribute:
     string
     ;
 
+//Get text from tokens which can contain element data
 innerText:
-    (var | arrayElement | elements)
+    assignable
     WS
     'INNER'
     WS
     'TEXT'
     ;
 
+//If check with it's code block
 ifBlock:
     'IF'
     WS
@@ -107,6 +121,7 @@ ifBlock:
     'IF'
     ;
 
+//For loop with it's code block
 forLoop:
     'FOR'
     WS
@@ -129,21 +144,25 @@ forLoop:
     'FOR'
     ;
 
+//Tokens which can contain number
 number:
     (NUMBER | arrayElement | length );
 
 operation:
     (operable | WS OPERATOR WS operation )+;
 
+//Length function
 length:
     (var | arrayElement | elements | string)
     WS
     'LENGTH'
     ;
 
+//Tokens on which we can make operations
 operable:
     (primitive | elements | parse | arrayElement | innerText | replace | length | getAttribute);
 
+//Webpage request
 request:
     'GET'
     WS
@@ -152,9 +171,11 @@ request:
     string
     ;
 
+//Tokens which we just output without modifications
 primitive:
     VAR | SINGLE_QUOTATION | DOUBLE_QUOTATION | NUMBER;
 
+//Get elements by ELEMENTS_TYPE from current page if document is not specified
 elements:
    documents?
    'GET'
@@ -168,9 +189,11 @@ elements:
    string
    ;
 
+//Tokens which can contain document data
 documents:
     (VAR | request | arrayElement)WS;
 
+//Wrapped var for easier visitor implementation
 var:
     VAR;
 
