@@ -2,6 +2,7 @@ package agh.miak;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 import java.io.IOException;
 
@@ -21,7 +22,12 @@ public class Main {
         }
 
         Scrapper letter = new Scrapper(input);
-        var output = letter.parse();
-        System.out.println(output);
+        String output = "";
+        try {
+            output = letter.parse();
+            System.out.println(output);
+        } catch (ParseCancellationException e) {
+            System.err.println("Parsing cancelled");
+        }
     }
 }

@@ -3,6 +3,6 @@ FOR LOOP i FROM 0 TO 10
     IF i == 5
         LOG "5";
     END IF;
-    x SET x + 1;
+    x SET x + 1 - 2 * 15 / 3 + "test";
 END FOR;
 LOG x;

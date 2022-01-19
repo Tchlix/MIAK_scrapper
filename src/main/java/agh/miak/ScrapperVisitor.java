@@ -3,12 +3,8 @@ package agh.miak;
 import antlr.v4.ScrapperBaseVisitor;
 import antlr.v4.ScrapperParser;
 
-import java.util.HashSet;
-import java.util.Set;
-
 class ScrapperVisitor extends ScrapperBaseVisitor<Void> {
     private static final String WEB_REQUESTER = String.format("class WebRequester {static request = new XMLHttpRequest();static parser = new DOMParser();static getRequest(address) {this.request.open('GET', address, false);this.request.send(null);return this.parser.parseFromString(this.request.responseText, 'text/html');}}%n%n");
-    Set<String> variables = new HashSet<>();
     StringBuilder stringBuilder = new StringBuilder();
     boolean request = false;
     int indentLevel = 0;
