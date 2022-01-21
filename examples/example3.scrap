@@ -1,8 +1,12 @@
 CREATE x SET 0;
 FOR LOOP i FROM 0 TO 10
     IF i == 5
-        LOG "5";
+        LOG i;
     END IF;
-    x SET x + 1 - 2 * 15 / 3 + "test";
 END FOR;
+x SET x + 1 - 2 * 15 / 3 + "test";
+LOG x;
+x SET x REPLACE 'es' WITH 'aa';
+LOG x;
+x SET PARSE x REPLACE 'taat' WITH '10' TO INT;
 LOG x;
